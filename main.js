@@ -22,19 +22,32 @@ function makeWireframe(geometry) {
   const wireframe = new THREE.WireframeGeometry(geometry)
   const line = new THREE.LineSegments(wireframe)
   line.material.color.setHex(0xffffff)
+  line.rotateX(Math.PI / 1.5)
   return line
 }
 
 function run(camera, renderer) {
-  const res = 5
+  const res = 10
   const scene = new THREE.Scene()
   // make geometry
   const geometry = new THREE.PlaneGeometry(res, res, res, res)
 
-  const material = new THREE.MeshNormalMaterial()
-  const mesh = new THREE.Mesh(geometry, material) 
+  const material = new THREE.MeshNormalMaterial({
+    side: THREE.DoubleSide
+  })
+  const terrain = new THREE.Mesh(geometry, material) 
+  terrain.rotateX(Math.PI / 1.5)
 
-  scene.add(mesh, makeWireframe(geometry))
+  const peak = 1
+  let vertices = terrain.geometry.attributes.position.array
+  // loop through vertices & update their values
+  for (let i = 0; i <= vertices.length; i += 3) {
+      vertices[i+2] = peak * Math.random()
+  }
+  terrain.geometry.attributes.position.needsUpdate = true
+  terrain.geometry.computeVertexNormals()
+
+  scene.add(terrain, makeWireframe(geometry))
   renderer.render(scene, camera)
 }
 
