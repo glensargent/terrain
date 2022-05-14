@@ -6,7 +6,7 @@ function makeCamera() {
   const fov = 45
   const aspect = innerWidth / innerHeight
   const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 500)
-  camera.position.set(0, 0, 100)
+  camera.position.set(0, 0, 10)
   camera.lookAt(0, 0, 0)
   return camera
 }
@@ -18,22 +18,23 @@ function makeRenderer(config = { antialias: true }) {
   return renderer
 }
 
+function makeWireframe(geometry) {
+  const wireframe = new THREE.WireframeGeometry(geometry)
+  const line = new THREE.LineSegments(wireframe)
+  line.material.color.setHex(0xffffff)
+  return line
+}
+
 function run(camera, renderer) {
+  const res = 5
   const scene = new THREE.Scene()
   // make geometry
-  let points = []
-  points.push(new THREE.Vector3(1, -1, 0))
-  points.push(new THREE.Vector3(0, 1, 0))
-  points.push(new THREE.Vector3(-1, -1, 0))
-  // points.push(new THREE.Vector3(1, 1, 0))
-  console.log(points)
-  
-  const geometry = new THREE.BufferGeometry().setFromPoints(points)
-    // .setFromPoints([points[0], points[3], points[1]])
-  const material = new THREE.MeshBasicMaterial()
+  const geometry = new THREE.PlaneGeometry(res, res, res, res)
+
+  const material = new THREE.MeshNormalMaterial()
   const mesh = new THREE.Mesh(geometry, material) 
-  
-  scene.add(mesh)
+
+  scene.add(mesh, makeWireframe(geometry))
   renderer.render(scene, camera)
 }
 
