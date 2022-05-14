@@ -6,7 +6,7 @@ function makeCamera() {
   const fov = 45
   const aspect = innerWidth / innerHeight
   const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 500)
-  camera.position.set(0, 0, 10)
+  camera.position.set(0, 0, 15)
   camera.lookAt(0, 0, 0)
   return camera
 }
