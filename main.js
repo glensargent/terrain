@@ -3,41 +3,41 @@ import * as THREE from 'three'
 const { innerWidth, innerHeight } = window
 
 function makeCamera() {
-  const fov = 70
+  const fov = 45
   const aspect = innerWidth / innerHeight
-  const camera = new THREE.PerspectiveCamera(fov, aspect, 0.01, 1000)
-  camera.position.z = 1
+  const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 500)
+  camera.position.set(0, 0, 100)
+  camera.lookAt(0, 0, 0)
   return camera
-}
-
-function makeScene() {
-  const scene = new THREE.Scene()
-  return scene
 }
 
 function makeRenderer(config = { antialias: true }) {
   const renderer = new THREE.WebGLRenderer(config)
-  renderer.setSize( innerWidth, innerHeight )
+  renderer.setSize(innerWidth, innerHeight)
+  document.body.appendChild(renderer.domElement)
   return renderer
 }
 
-function run(camera, renderer, scene) {
-  const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
-  const material = new THREE.MeshNormalMaterial()
-  const mesh = new THREE.Mesh(geometry, material)
-  scene.add(mesh)
+function run(camera, renderer) {
+  const scene = new THREE.Scene()
+  // make geometry
+  let points = []
+  points.push(new THREE.Vector3(1, -1, 0))
+  points.push(new THREE.Vector3(0, 1, 0))
+  points.push(new THREE.Vector3(-1, -1, 0))
+  // points.push(new THREE.Vector3(1, 1, 0))
+  console.log(points)
   
-  renderer.setAnimationLoop(time => {
-    mesh.rotation.x = time / 2000
-    mesh.rotation.y = time / 1000
-    renderer.render(scene, camera)
-  })
-
-  document.body.appendChild(renderer.domElement)
+  const geometry = new THREE.BufferGeometry().setFromPoints(points)
+    // .setFromPoints([points[0], points[3], points[1]])
+  const material = new THREE.MeshBasicMaterial()
+  const mesh = new THREE.Mesh(geometry, material) 
+  
+  scene.add(mesh)
+  renderer.render(scene, camera)
 }
 
 const camera = makeCamera()
-const scene = makeScene()
-const renderer = makeRenderer()
+const renderer = makeRenderer({ antialias: true })
 
-run(camera, renderer, scene)
+run(camera, renderer)
