@@ -31,20 +31,31 @@ function run(camera, renderer) {
   const res = 10
   const scene = new THREE.Scene()
   // make geometry
-  const peak = 1
+  const peak = 0.8
   let geometry = new THREE.PlaneGeometry(res, res, res, res)
   // loop through terrain vertices and change their 'heights'
   let vertices = geometry.attributes.position.array
   for (let i = 0; i <= vertices.length; i += 3) {
       vertices[i+2] = peak * Math.random()
   }
+  // geometry = geometry.toNonIndexed()
   geometry.computeVertexNormals()
+
   // color
   let count = geometry.attributes.position.count * 3
   geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count), 3))
   let colors = geometry.getAttribute('color')
   let color = new THREE.Color(0x0000ff)
   for (let i = 0; i < colors.count; i++) {
+    // get height of the vertex here
+    // need to skip every 3 because its a buffer, so each 3 values
+    // is one vertex xyz, then get +2 for the Y value
+    let height = vertices[i * 3 + 2]
+    if (height > 0.35) {
+      color.setHex(0x44ccff)
+    } else {
+      color.setHex(0x228800)
+    }
     colors.setXYZ(i, color.r, color.g, color.b)
   }
 
@@ -56,15 +67,17 @@ function run(camera, renderer) {
   // make material
   let material = new THREE.MeshBasicMaterial({
     side: THREE.DoubleSide,
-    vertexColors: THREE.VertexColors
+    vertexColors: THREE.VertexColors,
+    FlatShading: THREE.FlatShading
   })
+
 
   // create mesh
   let terrain = new THREE.Mesh(geometry, material) 
   // rotate terrain for better viewing
-  terrain.rotateX(Math.PI / 1.5)
+  terrain.rotateX(Math.PI / 1.4)
   scene.add(terrain)
-  scene.add(makeWireframe(terrain.geometry))
+  // scene.add(makeWireframe(terrain.geometry))
   renderer.render(scene, camera)
 }
 
