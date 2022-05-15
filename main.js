@@ -1,14 +1,12 @@
 import * as THREE from 'three'
-import { NoColorSpace } from 'three'
+import { OrbitControls } from './orbitcontrols'
 
 const { innerWidth, innerHeight } = window
 
 function makeCamera() {
   const fov = 45
   const aspect = innerWidth / innerHeight
-  const camera = new THREE.PerspectiveCamera(fov, aspect, 1, 500)
-  camera.position.set(0, 0, 15)
-  camera.lookAt(0, 0, 0)
+  const camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 100)
   return camera
 }
 
@@ -31,6 +29,11 @@ function run(camera, renderer) {
   const res = 10
   const scene = new THREE.Scene()
   // make geometry
+  // add a new light so we can see
+  const light = new THREE.PointLight(0xffffff, 1.5, 100)
+  light.position.set(10, 10, 20)
+  scene.add(light)
+
   const peak = 0.8
   let geometry = new THREE.PlaneGeometry(res, res, res, res)
   // loop through terrain vertices and change their 'heights'
@@ -45,7 +48,7 @@ function run(camera, renderer) {
   let count = geometry.attributes.position.count * 3
   geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count), 3))
   let colors = geometry.getAttribute('color')
-  let color = new THREE.Color(0x0000ff)
+  let color = new THREE.Color()
   for (let i = 0; i < colors.count; i++) {
     // get height of the vertex here
     // need to skip every 3 because its a buffer, so each 3 values
@@ -56,6 +59,7 @@ function run(camera, renderer) {
     } else {
       color.setHex(0x228800)
     }
+    
     colors.setXYZ(i, color.r, color.g, color.b)
   }
 
@@ -65,10 +69,11 @@ function run(camera, renderer) {
 
 
   // make material
-  let material = new THREE.MeshBasicMaterial({
+  let material = new THREE.MeshPhongMaterial({
     side: THREE.DoubleSide,
     vertexColors: THREE.VertexColors,
-    FlatShading: THREE.FlatShading
+    flatShading: THREE.FlatShading,
+    // shininess: 0,
   })
 
 
@@ -78,8 +83,23 @@ function run(camera, renderer) {
   terrain.rotateX(Math.PI / 1.4)
   scene.add(terrain)
   // scene.add(makeWireframe(terrain.geometry))
-  renderer.render(scene, camera)
+
+
+  // orbit controls
+  const controls = new OrbitControls( camera, renderer.domElement );
+  camera.position.set( 0, 0, 15 );
+  controls.update();
+
+  function animate() {
+    requestAnimationFrame( animate );
+    // required if controls.enableDamping or controls.autoRotate are set to true
+    controls.update()
+    renderer.render(scene, camera)
+  }
+
+  animate()
 }
+
 
 const camera = makeCamera()
 const renderer = makeRenderer({ antialias: true })
