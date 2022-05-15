@@ -30,8 +30,9 @@ function run(camera, renderer) {
   const scene = new THREE.Scene()
   // make geometry
   // add a new light so we can see
-  const light = new THREE.PointLight(0xffffff, 1.5, 100)
-  light.position.set(10, 10, 20)
+  const light = new THREE.PointLight(0xffffff, 1, 100)
+
+  light.position.set(0, 10, 15)
   scene.add(light)
 
   const peak = 0.8
@@ -41,7 +42,7 @@ function run(camera, renderer) {
   for (let i = 0; i <= vertices.length; i += 3) {
       vertices[i+2] = peak * Math.random()
   }
-  // geometry = geometry.toNonIndexed()
+
   geometry.computeVertexNormals()
 
   // color
@@ -86,12 +87,12 @@ function run(camera, renderer) {
 
 
   // orbit controls
-  const controls = new OrbitControls( camera, renderer.domElement );
-  camera.position.set( 0, 0, 15 );
-  controls.update();
+  const controls = new OrbitControls(camera, renderer.domElement)
+  camera.position.set(0, 0, 15)
+  controls.update()
 
   function animate() {
-    requestAnimationFrame( animate );
+    requestAnimationFrame(animate)
     // required if controls.enableDamping or controls.autoRotate are set to true
     controls.update()
     renderer.render(scene, camera)
