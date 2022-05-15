@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { NoColorSpace } from 'three'
 
 const { innerWidth, innerHeight } = window
 
@@ -30,24 +31,40 @@ function run(camera, renderer) {
   const res = 10
   const scene = new THREE.Scene()
   // make geometry
-  const geometry = new THREE.PlaneGeometry(res, res, res, res)
-
-  const material = new THREE.MeshNormalMaterial({
-    side: THREE.DoubleSide
-  })
-  const terrain = new THREE.Mesh(geometry, material) 
-  terrain.rotateX(Math.PI / 1.5)
-
   const peak = 1
-  let vertices = terrain.geometry.attributes.position.array
-  // loop through vertices & update their values
+  let geometry = new THREE.PlaneGeometry(res, res, res, res)
+  // loop through terrain vertices and change their 'heights'
+  let vertices = geometry.attributes.position.array
   for (let i = 0; i <= vertices.length; i += 3) {
       vertices[i+2] = peak * Math.random()
   }
-  terrain.geometry.attributes.position.needsUpdate = true
-  terrain.geometry.computeVertexNormals()
+  geometry.computeVertexNormals()
+  // color
+  let count = geometry.attributes.position.count * 3
+  geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count), 3))
+  let colors = geometry.getAttribute('color')
+  let color = new THREE.Color(0x0000ff)
+  for (let i = 0; i < colors.count; i++) {
+    colors.setXYZ(i, color.r, color.g, color.b)
+  }
 
-  scene.add(terrain, makeWireframe(geometry))
+  geometry.attributes.position.needsUpdate = true
+  geometry.attributes.color.needsUpdate = true;
+
+
+
+  // make material
+  let material = new THREE.MeshBasicMaterial({
+    side: THREE.DoubleSide,
+    vertexColors: THREE.VertexColors
+  })
+
+  // create mesh
+  let terrain = new THREE.Mesh(geometry, material) 
+  // rotate terrain for better viewing
+  terrain.rotateX(Math.PI / 1.5)
+  scene.add(terrain)
+  scene.add(makeWireframe(terrain.geometry))
   renderer.render(scene, camera)
 }
 
