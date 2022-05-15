@@ -21,7 +21,7 @@ function makeWireframe(geometry) {
   const wireframe = new THREE.WireframeGeometry(geometry)
   const line = new THREE.LineSegments(wireframe)
   line.material.color.setHex(0xffffff)
-  line.rotateX(Math.PI / 1.5)
+  line.rotateX(Math.PI / 1.4)
   return line
 }
 
@@ -102,6 +102,6 @@ function run(camera, renderer) {
 
 
 const camera = makeCamera()
-const renderer = makeRenderer({ antialias: true })
+const renderer = makeRenderer({ antialias: false })
 
 run(camera, renderer)
